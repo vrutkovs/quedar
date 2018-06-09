@@ -1,0 +1,14 @@
+language: python
+python:
+  - "3.6"
+install:
+  - pip install pipenv
+script:
+  - pipenv check
+  - pipenv install --system --deploy
+after_success:
+  - if [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_PULL_REQUEST" == "false" ]]; then
+    docker build -t vrutkovs/quedar . &&
+    docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD" &&
+    docker push vrutkovs/quedar;
+    fi
