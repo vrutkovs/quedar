@@ -42,7 +42,7 @@ jobs:
       - oc project quedar
       - oc apply -f openshift
       - oc import-image quedar
-      - oc rollout status dc/quedar -w || oc logs dc/quedar
+      - oc rollout status dc/quedar -w
 
 notifications:
   email: false
