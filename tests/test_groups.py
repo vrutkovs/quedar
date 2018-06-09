@@ -12,7 +12,7 @@ async def client(test_client, app, loop):
     await sample_data(app['engine'])
     return result
 
-async def test_groups(client, loop):
+async def test_get_group(client, loop):
     resp = await client.get('/group/1')
     assert resp.status == 200
     result = await resp.json()
