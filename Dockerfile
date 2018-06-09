@@ -1,5 +1,10 @@
 FROM registry.fedoraproject.org/fedora:28
 
+ARG BUILDID=unknown
+ARG REPO_SLUG=unknown/unknown
+
+LABEL io.openshift.build.source-location=https://travis-ci.org/$REPO_SLUG/builds/$BUILDID
+
 # Updates and PIP
 RUN dnf update -y && \
     dnf -y install pipenv which && \
