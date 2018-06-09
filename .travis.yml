@@ -9,9 +9,6 @@ env:
 stages:
   - pipenv
   - unittests
-  - "docker push"
-  - name: "docker tag"
-    if: tag IS present AND fork = false
   - name: "deploy to Origin"
     if: branch = master AND type = push AND fork = false
 
@@ -25,16 +22,12 @@ jobs:
       script:
       - docker build --build-arg BUILDID=$TRAVIS_BUILD_ID --build-arg REPO_SLUG=$TRAVIS_REPO_SLUG -t $DOCKER_IMAGE .
       - docker run --rm --entrypoint=tests/run.sh -ti $DOCKER_IMAGE
-
-    - stage: "docker push"
-      script:
       - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
       - docker push $DOCKER_IMAGE
-
-    - stage: "docker tag"
-      script:
-      - docker tag $DOCKER_IMAGE $DOCKER_IMAGE:$TRAVIS_TAG
-      - docker push $DOCKER_IMAGE:$TRAVIS_TAG
+      - if [ -z $TRAVIS_TAG ]; then
+        docker tag $DOCKER_IMAGE:latest $DOCKER_IMAGE:$TRAVIS_TAG &&
+        docker push $DOCKER_IMAGE:$TRAVIS_TAG;
+        fi
 
     - stage: "deploy to Origin"
       script:
