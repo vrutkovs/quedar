@@ -9,7 +9,7 @@ async def index(request):
     return web.Response(text=text)
 
 
-async def group_handler(request):
+async def get_group(request):
     async with request.app['engine'].connect() as conn:
         group_id = request.match_info['id']
         result = await conn.execute(group.select(group.c.id == group_id))
