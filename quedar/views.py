@@ -3,6 +3,10 @@ from .db import sample_data, group
 from sqlalchemy.orm import sessionmaker
 
 
+async def health(request):
+    return web.Response(text='ok')
+
+
 async def get_group(request):
     async with request.app['engine'].connect() as conn:
         group_id = request.match_info['id']
