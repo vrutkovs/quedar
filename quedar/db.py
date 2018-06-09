@@ -74,6 +74,7 @@ attendee = Table(
     Column('rsvp_status', Boolean()),
 )
 
+
 async def init_db(app):
     engine = create_engine(
         # In-memory sqlite database cannot be accessed from different
@@ -91,6 +92,8 @@ async def init_db(app):
 
     app['engine'] = engine
 
+
+# TODO: Move this to tests
 async def sample_data(engine):
     async with engine.connect() as conn:
         await conn.execute(user.insert().values(
