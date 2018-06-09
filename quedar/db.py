@@ -6,11 +6,7 @@ from sqlalchemy import (
 )
 from datetime import datetime
 
-engine = create_engine(
-    # In-memory sqlite database cannot be accessed from different
-    # threads, use file.
-    app.config['dsn'], strategy=ASYNCIO_STRATEGY
-)
+meta = MetaData()
 
 group = Table(
     'group', meta,
@@ -77,8 +73,14 @@ attendee = Table(
     Column('rsvp_status', Boolean()),
 )
 
-meta = MetaData()
-meta.create_all(bind=engine, tables=[user, group, group_org, event, attendee])
+async def init_db(app):
+    engine = create_engine(
+        # In-memory sqlite database cannot be accessed from different
+        # threads, use file.
+        app.config['dsn'], strategy=ASYNCIO_STRATEGY
+    )
+    meta.create_all(bind=engine, tables=[user, group, group_org, event, attendee])
+    app['engine'] = engine
 
 async def sample_data(engine):
     conn = await engine.connect()
