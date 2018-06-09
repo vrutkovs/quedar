@@ -24,10 +24,6 @@ jobs:
       - docker run --rm --entrypoint=tests/run.sh -ti $DOCKER_IMAGE
       - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
       - docker push $DOCKER_IMAGE
-      - if [ -z $TRAVIS_TAG ]; then
-        docker tag $DOCKER_IMAGE:latest $DOCKER_IMAGE:$TRAVIS_TAG &&
-        docker push $DOCKER_IMAGE:$TRAVIS_TAG;
-        fi
 
     - stage: "deploy to Origin"
       script:
