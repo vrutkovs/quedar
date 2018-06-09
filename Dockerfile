@@ -15,4 +15,4 @@ RUN pipenv install --system --deploy
 
 EXPOSE 8080
 
-CMD ['python3', 'server.py']
+CMD ["python3", "server.py"]
