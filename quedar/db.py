@@ -1,8 +1,10 @@
 from sqlalchemy_aio import ASYNCIO_STRATEGY
 from sqlalchemy import (
     MetaData, Table, Column, ForeignKey,
-    Integer, String, DateTime, Boolean
+    Integer, String, DateTime, Boolean,
+    create_engine
 )
+from datetime import datetime
 
 engine = create_engine(
     # In-memory sqlite database cannot be accessed from different
@@ -75,7 +77,41 @@ attendee = Table(
     Column('rsvp_status', Boolean()),
 )
 
-async def init_engine(app):
-    meta = MetaData()
-    meta.create_all(bind=engine, tables=[group, group_org, user, event, attendee])
-    return engine
+meta = MetaData()
+meta.create_all(bind=engine, tables=[user, group, group_org, event, attendee])
+
+async def sample_data(engine):
+    conn = await engine.connect()
+    await conn.execute(user.insert().values(
+        name='Test user',
+        password='password',
+        email_address='someone@example.com',
+    ))
+    await conn.execute(group.insert().values(
+        name='Test group',
+        description='Test group description',
+        country='Czech Republic',
+        city='Brno',
+        creator=1,
+    ))
+    await conn.execute(group_org.insert().values(
+        group=1,
+        user=1,
+    ))
+    await conn.execute(event.insert().values(
+        group=1,
+        creator=1,
+        name="Test event",
+        description="Test description",
+        location="The Place",
+        starts_at=datetime(1,1,1,1,1,0),
+        ends_at=datetime(1,1,1,1,30,0),
+    ))
+    await conn.execute(attendee.insert().values(
+        user=1,
+        event=1,
+        rsvped_on=datetime(1,1,1,0,1,0),
+        rsvp_status=True,
+    ))
+
+    await conn.close()
