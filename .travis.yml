@@ -10,9 +10,9 @@ stages:
   - pipenv
   - "docker image"
   - "docker tag image"
-    if: tag IS present
+    if: tag IS present AND fork = false
   - name: "deploy to Origin"
-    if: branch = master AND type = push
+    if: branch = master AND type = push AND fork = false
 
 jobs:
   include:
