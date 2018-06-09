@@ -3,26 +3,32 @@ python:
   - "3.6"
 install:
   - pip install pipenv
+env:
+  - DOCKER_IMAGE=vrutkovs/quedar
+  - OC_VERSION=v3.9.0-191fece
+  - OC_PROJECT=quedar
+  - OC_IMAGESTREAM=quedar
+  - OC_DEPLOYMENTCONFIG=quedar
 script:
   - pipenv check
   - pipenv install --system --deploy
 after_success:
   #Push to docker
   - if [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_PULL_REQUEST" == "false" ]]; then
-    docker build -t vrutkovs/quedar . &&
+    docker build -t $DOCKER_IMAGE . &&
     docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD" &&
-    docker push vrutkovs/quedar
+    docker push $DOCKER_IMAGE
     fi
   #Rollout new openshift deployment
   - if [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_PULL_REQUEST" == "false" ]]; then
-    wget https://github.com/openshift/origin/releases/download/v3.9.0/openshift-origin-client-tools-v3.9.0-191fece-linux-64bit.tar.gz &&
-    tar –xvf openshift-origin-client-tools-v3.9.0-191fece-linux-64bit.tar.gz
-    mv openshift-origin-client-tools-v3.9.0-191fece-linux-64bit oc
+    wget https://github.com/openshift/origin/releases/download/v3.9.0/openshift-origin-client-tools-$OC_VERSION-linux-64bit.tar.gz &&
+    tar –xvf openshift-origin-client-tools-$OC_VERSION-linux-64bit.tar.gz
+    mv openshift-origin-client-tools-$OC_VERSION-linux-64bit oc
     export PATH=`pwd`/oc:$PATH
     oc login https://api.starter-us-west-2.openshift.com --token=$OPENSHIFT_TOKEN
-    oc project quedar
-    oc import-image quedar
-    oc rollout latest dc/quedar
+    oc project $OC_PROJECT
+    oc import-image $OC_IMAGESTREAM
+    oc rollout latest dc/$OC_DEPLOYMENTCONFIG
     fi
 notifications:
   email: false
