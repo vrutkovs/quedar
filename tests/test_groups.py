@@ -1,5 +1,5 @@
 async def test_get_group(client, loop):
-    resp = await client.get('/group/1')
+    resp = await client.get('/api/v1/group/1')
     assert resp.status == 200
     result = await resp.json()
     assert result == {
