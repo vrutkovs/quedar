@@ -12,12 +12,6 @@ async def client(test_client, app, loop):
     await sample_data(app['engine'])
     return result
 
-async def test_hello(client, loop):
-    resp = await client.get('/')
-    assert resp.status == 200
-    text = await resp.text()
-    assert 'Hello, Anonymous' in text
-
 async def test_groups(client, loop):
     resp = await client.get('/group/1')
     assert resp.status == 200

@@ -3,12 +3,6 @@ from .db import sample_data, group
 from sqlalchemy.orm import sessionmaker
 
 
-async def index(request):
-    name = request.match_info.get('name', "Anonymous")
-    text = "Hello, " + name
-    return web.Response(text=text)
-
-
 async def get_group(request):
     async with request.app['engine'].connect() as conn:
         group_id = request.match_info['id']
