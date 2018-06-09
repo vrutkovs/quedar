@@ -1,6 +1,5 @@
-from .views import index, sample_data
+from .views import index, sample_data, group_handler
 
 async def setup_routes(app):
     app.router.add_get('/', index)
-    app.router.add_get('/fill_in_sample_data', sample_data)
-    app.router.add_get('/group/{id}', group)
+    app.router.add_get('/group/{id}', group_handler)

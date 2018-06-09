@@ -9,4 +9,5 @@ def get_config(path):
         config = yaml.load(f)
     return config
 
-config = get_config(config_path)
+async def set_config(app):
+    app['config'] = get_config(config_path)

@@ -13,5 +13,5 @@ sqlalchemy-aio = '*'
 pyyaml = '*'
 
 [dev-packages]
-nose = '*'
-unittest2 = '*'
+pytest = '*'
+pytest-aiohttp = '*'
