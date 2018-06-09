@@ -32,7 +32,6 @@ jobs:
       - oc login https://api.starter-us-west-2.openshift.com --token=$OPENSHIFT_TOKEN
       - oc project $OC_PROJECT
       - oc import-image $OC_IMAGESTREAM
-      - export REVISION=$(oc deploy dc/$OC_DEPLOYMENTCONFIG --latest -o revision)
-      - oc rollout status --revision=$REVISION
+      - oc rollout status dc/$OC_DEPLOYMENTCONFIG -w
 notifications:
   email: false
