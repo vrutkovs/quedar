@@ -2,6 +2,8 @@ image: docker:stable
 variables:
   DOCKER_DRIVER: overlay2
   IMAGE: vrutkovs/quedar
+  DOCKER_USERNAME: vrutkovs
+  GITLAB_USERNAME: vrutkovs
 services:
 - docker:dind
 
@@ -15,6 +17,7 @@ build_image:
   stage: build
   script:
   - docker build --build-arg BUILDID=$CI_PIPELINE_ID --build-arg REPO_SLUG=$CI_PROJECT_PATH -t registry.gitlab.com/$IMAGE .
+  - docker login -u="GITLAB_USERNAME" -p="$GITLAB_TOKEN" registry.gitlab.com
   - docker push registry.gitlab.com/$IMAGE
 
 pipenv_check:
