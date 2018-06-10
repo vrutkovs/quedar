@@ -32,7 +32,7 @@ pytest:
   - docker pull registry.gitlab.com/$IMAGE
   - docker run --rm registry.gitlab.com/$IMAGE check
 
-push_to_dockerhub:
+dockerhub:
   stage: push
   script:
   - docker pull registry.gitlab.com/$IMAGE
@@ -53,7 +53,7 @@ push_tagged_image:
   only:
     - tags
 
-deploy_to_starter:
+openshift:
   stage: deploy
   script:
   - wget https://github.com/openshift/origin/releases/download/v3.9.0/openshift-origin-client-tools-$OC_VERSION-linux-64bit.tar.gz
