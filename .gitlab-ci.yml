@@ -1,12 +1,12 @@
 image: docker:stable
 variables:
   DOCKER_DRIVER: overlay2
+  IMAGE: vrutkovs/quedar
 services:
 - docker:dind
 
 stages:
   - build
-  - check
   - test
   - push
   - deploy
@@ -14,23 +14,28 @@ stages:
 build_image:
   stage: build
   script:
-  - docker build --build-arg BUILDID=$TRAVIS_BUILD_ID --build-arg REPO_SLUG=$TRAVIS_REPO_SLUG -t vrutkovs/quedar .
+  - docker build --build-arg BUILDID=$CI_PIPELINE_ID --build-arg REPO_SLUG=$CI_PROJECT_PATH -t registry.gitlab.com/$IMAGE .
+  - docker push registry.gitlab.com/$IMAGE
 
 pipenv_check:
-  stage: check
+  stage: test
   script:
-  - docker run --rm vrutkovs/quedar check
+  - docker pull registry.gitlab.com/$IMAGE
+  - docker run --rm registry.gitlab.com/$IMAGE check
 
 pytest:
   stage: test
   script:
-    - docker run --rm vrutkovs/quedar test
+  - docker pull registry.gitlab.com/$IMAGE
+  - docker run --rm registry.gitlab.com/$IMAGE check
 
-push_image:
+push_to_dockerhub:
   stage: push
   script:
+  - docker pull registry.gitlab.com/$IMAGE
+  - docker tag registry.gitlab.com/$IMAGE docker.io/$IMAGE
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - docker push vrutkovs/quedar
+  - docker push docker.io/$IMAGE
   only:
     refs:
       - master
@@ -38,9 +43,10 @@ push_image:
 push_tagged_image:
   stage: push
   script:
+  - docker pull registry.gitlab.com/$IMAGE
+  - docker tag registry.gitlab.com/$IMAGE docker.io/$IMAGE:$CI_COMMIT_TAG
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - docker tag vrutkovs/quedar:latest vrutkovs/quedar:"$TAG"
-  - docker push vrutkovs/quedar:"$TAG"
+  - docker push docker.io/$IMAGE:$CI_COMMIT_TAG
   only:
     - tags
 
