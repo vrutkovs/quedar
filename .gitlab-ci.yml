@@ -1,0 +1,60 @@
+stages:
+  - check
+  - build
+  - test
+  - push
+  - deploy
+
+pipenv_check:
+  stage: check
+  before_script:
+  - pip install pipenv
+  script:
+  - pipenv check
+
+build_image:
+  stage: build
+  script:
+  - docker build --build-arg BUILDID=$TRAVIS_BUILD_ID --build-arg REPO_SLUG=$TRAVIS_REPO_SLUG -t vrutkovs/quedar .
+
+pytest:
+  stage: test
+  script:
+    - docker run --rm --entrypoint=tests/run.sh -ti vrutkovs/quedar
+
+push_image:
+  stage: push
+  script:
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - docker push vrutkovs/quedar
+  only:
+    refs:
+      - master
+
+push_tagged_image:
+  stage: push
+  script:
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - docker tag vrutkovs/quedar:latest vrutkovs/quedar:"$TAG"
+  - docker push vrutkovs/quedar:"$TAG"
+  only:
+    - tags
+
+deploy_to_starter:
+  stage: deploy
+  script:
+  - wget https://github.com/openshift/origin/releases/download/v3.9.0/openshift-origin-client-tools-$OC_VERSION-linux-64bit.tar.gz
+  - tar -xvf openshift-origin-client-tools-$OC_VERSION-linux-64bit.tar.gz
+  - mv openshift-origin-client-tools-$OC_VERSION-linux-64bit oc
+  - export PATH=`pwd`/oc:$PATH
+  - oc login https://api.starter-us-west-2.openshift.com --token=$OPENSHIFT_TOKEN
+  - oc project quedar
+  - oc apply -f openshift
+  - oc import-image quedar
+  - oc rollout status dc/quedar -w
+  only:
+    refs:
+      - master
+  environment:
+    name: production
+    url: http://quedar-quedar.7e14.starter-us-west-2.openshiftapps.com
