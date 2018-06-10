@@ -3,13 +3,12 @@ variables:
   DOCKER_DRIVER: overlay2
   IMAGE: vrutkovs/quedar
   DOCKER_USERNAME: vrutkovs
-  GITLAB_USERNAME: vrutkovs
 services:
 - docker:dind
 
 before_script:
-- docker login -u="GITLAB_USERNAME" -p="$GITLAB_TOKEN" registry.gitlab.com
-- docker pull registry.gitlab.com/$IMAGE
+- docker login -u="GITLAB_USER_ID" -p="$GITLAB_TOKEN" registry.gitlab.com
+- docker pull registry.gitlab.com/$IMAGE:$CI_COMMIT_SHA || true
 
 stages:
   - build
@@ -20,25 +19,25 @@ stages:
 build_image:
   stage: build
   script:
-  - docker build --cache-from registry.gitlab.com/$IMAGE --build-arg BUILDID=$CI_PIPELINE_ID --build-arg REPO_SLUG=$CI_PROJECT_PATH -t registry.gitlab.com/$IMAGE .
-  - docker push registry.gitlab.com/$IMAGE
+  - docker build --pull --cache-from docker.io/$IMAGE:latest --build-arg BUILDID=$CI_PIPELINE_ID --build-arg REPO_SLUG=$CI_PROJECT_PATH -t registry.gitlab.com/$IMAGE .
+  - docker push registry.gitlab.com/$IMAGE:$CI_COMMIT_SHA
 
 pipenv_check:
   stage: test
   script:
-  - docker run --rm registry.gitlab.com/$IMAGE check
+  - docker run --rm registry.gitlab.com/$IMAGE:$CI_COMMIT_SHA check
 
 pytest:
   stage: test
   script:
-  - docker run --rm registry.gitlab.com/$IMAGE check
+  - docker run --rm registry.gitlab.com/$IMAGE:$CI_COMMIT_SHA check
 
 dockerhub:
   stage: push
   script:
-  - docker tag registry.gitlab.com/$IMAGE docker.io/$IMAGE
+  - docker tag registry.gitlab.com/$IMAGE:$CI_COMMIT_SHA docker.io/$IMAGE:latest
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - docker push docker.io/$IMAGE
+  - docker push docker.io/$IMAGE:latest
   only:
     refs:
       - master
@@ -46,7 +45,7 @@ dockerhub:
 push_tagged_image:
   stage: push
   script:
-  - docker tag registry.gitlab.com/$IMAGE docker.io/$IMAGE:$CI_COMMIT_TAG
+  - docker tag registry.gitlab.com/$IMAGE:$CI_COMMIT_SHA docker.io/$IMAGE:$CI_COMMIT_TAG
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
   - docker push docker.io/$IMAGE:$CI_COMMIT_TAG
   only:
