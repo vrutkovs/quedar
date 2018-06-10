@@ -30,7 +30,7 @@ pipenv_check:
 pytest:
   stage: test
   script:
-  - docker run --rm registry.gitlab.com/$IMAGE:$CI_COMMIT_SHA check
+  - docker run --rm registry.gitlab.com/$IMAGE:$CI_COMMIT_SHA test
 
 dockerhub:
   stage: push
