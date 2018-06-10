@@ -3,6 +3,7 @@ variables:
   DOCKER_DRIVER: overlay2
   IMAGE: vrutkovs/quedar
   DOCKER_USERNAME: vrutkovs
+  CACHE: yes
 services:
 - docker:dind
 
@@ -19,7 +20,7 @@ stages:
 build_image:
   stage: build
   script:
-  - docker pull docker.io/$IMAGE:latest
+  - if [ "$CACHE" = "yes" ]; then docker pull docker.io/$IMAGE:latest; fi
   - docker build --pull --cache-from docker.io/$IMAGE:latest --build-arg BUILDID=$CI_PIPELINE_ID --build-arg REPO_URL=$CI_PROJECT_URL -t registry.gitlab.com/$IMAGE:$CI_COMMIT_SHA .
   - docker push registry.gitlab.com/$IMAGE:$CI_COMMIT_SHA
 
