@@ -3,7 +3,7 @@ variables:
   DOCKER_DRIVER: overlay2
   IMAGE: vrutkovs/quedar
   DOCKER_USERNAME: vrutkovs
-  CACHE: yes
+  CACHE: "yes"
 services:
 - docker:dind
 
