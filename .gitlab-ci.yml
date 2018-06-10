@@ -19,6 +19,7 @@ stages:
 build_image:
   stage: build
   script:
+  - docker pull docker.io/$IMAGE:latest
   - docker build --pull --cache-from docker.io/$IMAGE:latest --build-arg BUILDID=$CI_PIPELINE_ID --build-arg REPO_URL=$CI_PROJECT_URL -t registry.gitlab.com/$IMAGE:$CI_COMMIT_SHA .
   - docker push registry.gitlab.com/$IMAGE:$CI_COMMIT_SHA
 
