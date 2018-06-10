@@ -4,6 +4,10 @@ run:
 check:
 	pipenv check
 
-test:
-	pipenv install --system -d
-	python3 -m pytest
+install_dev:
+	pipenv install -d
+
+pytest:
+	pipenv run python3 -m pytest
+
+test: install_dev pytest
