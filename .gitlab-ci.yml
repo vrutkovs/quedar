@@ -55,11 +55,8 @@ push_tagged_image:
 
 openshift:
   stage: deploy
+  image: openshift/origin:v3.9
   script:
-  - wget https://github.com/openshift/origin/releases/download/v3.9.0/openshift-origin-client-tools-$OC_VERSION-linux-64bit.tar.gz
-  - tar -xvf openshift-origin-client-tools-$OC_VERSION-linux-64bit.tar.gz
-  - mv openshift-origin-client-tools-$OC_VERSION-linux-64bit oc
-  - export PATH=`pwd`/oc:$PATH
   - oc login https://api.starter-us-west-2.openshift.com --token=$OPENSHIFT_TOKEN
   - oc project quedar
   - oc apply -f openshift
