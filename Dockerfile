@@ -1,16 +1,14 @@
-FROM registry.fedoraproject.org/fedora:28
+FROM registry.fedoraproject.org/fedora-minimal:28
 
 ARG BUILDID=unknown
 ARG REPO_SLUG=unknown/unknown
 
-LABEL io.openshift.build.source-location=https://travis-ci.org/$REPO_SLUG/builds/$BUILDID
-
 # Updates and pipenv
-RUN dnf update -y && \
-    dnf -y install pipenv which make && \
-    dnf clean all
+RUN microdnf update -y && \
+    microdnf -y install pipenv which make && \
+    microdnf clean all
 
-
+LABEL io.openshift.build.source-location=https://travis-ci.org/$REPO_SLUG/builds/$BUILDID
 ENV LANG en_US.UTF-8
 EXPOSE 8080
 
