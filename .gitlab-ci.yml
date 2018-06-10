@@ -54,7 +54,9 @@ push_tagged_image:
 
 openshift:
   stage: deploy
-  image: openshift/origin:v3.9
+  image:
+    name: openshift/origin:v3.9
+    entrypoint: sh
   before_script: []
   script:
   - oc login https://api.starter-us-west-2.openshift.com --token=$OPENSHIFT_TOKEN
