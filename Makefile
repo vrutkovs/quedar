@@ -1,4 +1,4 @@
-all:
+run:
 	python3 server.py
 
 check:

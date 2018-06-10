@@ -18,9 +18,8 @@ EXPOSE 8080
 ADD . /code
 WORKDIR /code
 
-# Make tests executable
-RUN chmod +x tests/run.sh
 # Install dependencies
 RUN pipenv install --system --deploy
 
-ENTRYPOINT make
+ENTRYPOINT ["make"]
+CMD ["run"]
