@@ -19,12 +19,12 @@ build_image:
 pipenv_check:
   stage: check
   script:
-  - docker run --rm --entrypoint=make vrutkovs/quedar check
+  - docker run --rm vrutkovs/quedar check
 
 pytest:
   stage: test
   script:
-    - docker run --rm --entrypoint=make vrutkovs/quedar test
+    - docker run --rm vrutkovs/quedar test
 
 push_image:
   stage: push

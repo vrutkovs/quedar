@@ -7,7 +7,7 @@ LABEL io.openshift.build.source-location=https://travis-ci.org/$REPO_SLUG/builds
 
 # Updates and pipenv
 RUN dnf update -y && \
-    dnf -y install pipenv which && \
+    dnf -y install pipenv which make && \
     dnf clean all
 
 
@@ -23,4 +23,4 @@ RUN chmod +x tests/run.sh
 # Install dependencies
 RUN pipenv install --system --deploy
 
-CMD ["python3", "server.py"]
+ENTRYPOINT make

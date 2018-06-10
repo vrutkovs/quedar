@@ -1,3 +1,6 @@
+all:
+	python3 server.py
+
 check:
 	pipenv check
 
