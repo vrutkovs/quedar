@@ -1,26 +1,30 @@
+image: docker:stable
+variables:
+  DOCKER_DRIVER: overlay2
+services:
+- docker:dind
+
 stages:
-  - check
   - build
+  - check
   - test
   - push
   - deploy
-
-pipenv_check:
-  stage: check
-  before_script:
-  - pip install pipenv
-  script:
-  - pipenv check
 
 build_image:
   stage: build
   script:
   - docker build --build-arg BUILDID=$TRAVIS_BUILD_ID --build-arg REPO_SLUG=$TRAVIS_REPO_SLUG -t vrutkovs/quedar .
 
+pipenv_check:
+  stage: check
+  script:
+  - docker run --rm --entrypoint=make -ti vrutkovs/quedar check
+
 pytest:
   stage: test
   script:
-    - docker run --rm --entrypoint=tests/run.sh -ti vrutkovs/quedar
+    - docker run --rm --entrypoint=make -ti vrutkovs/quedar test
 
 push_image:
   stage: push
