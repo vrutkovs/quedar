@@ -1,15 +1,18 @@
 image: docker:stable
 variables:
   DOCKER_DRIVER: overlay2
-  IMAGE: vrutkovs/quedar
   DOCKER_USERNAME: vrutkovs
   CACHE: "yes"
+  IMAGE: vrutkovs/quedar
+  TEST_IMAGE: registry.gitlab.com/$IMAGE:$CI_COMMIT_SHA
+  RELEASE_IMAGE: docker.io/$IMAGE:latest
+  RELEASE_TAG_IMAGE: docker.io/$IMAGE:$CI_COMMIT_TAG
 services:
 - docker:dind
 
 before_script:
 - docker login -u="GITLAB_USER_ID" -p="$GITLAB_TOKEN" registry.gitlab.com
-- docker pull registry.gitlab.com/$IMAGE:$CI_COMMIT_SHA || true
+- docker pull $TEST_IMAGE || true
 
 stages:
   - build
@@ -20,26 +23,25 @@ stages:
 build_image:
   stage: build
   script:
-  - if [ "$CACHE" = "yes" ]; then docker pull docker.io/$IMAGE:latest; fi
-  - docker build --pull --cache-from docker.io/$IMAGE:latest --build-arg BUILDID=$CI_PIPELINE_ID --build-arg REPO_URL=$CI_PROJECT_URL -t registry.gitlab.com/$IMAGE:$CI_COMMIT_SHA .
-  - docker push registry.gitlab.com/$IMAGE:$CI_COMMIT_SHA
+  - if [ "$CACHE" = "yes" ]; then docker pull $RELEASE_IMAGE; fi
+  - docker build --pull --cache-from $RELEASE_IMAGE --build-arg BUILDID=$CI_PIPELINE_ID --build-arg REPO_URL=$CI_PROJECT_URL -t $TEST_IMAGE -t $RELEASE_IMAGE .
+  - docker push $TEST_IMAGE
 
 pipenv_check:
   stage: test
   script:
-  - docker run --rm registry.gitlab.com/$IMAGE:$CI_COMMIT_SHA check
+  - docker run --rm $TEST_IMAGE check
 
 pytest:
   stage: test
   script:
-  - docker run --rm registry.gitlab.com/$IMAGE:$CI_COMMIT_SHA test
+  - docker run --rm $TEST_IMAGE test
 
 dockerhub:
   stage: push
   script:
-  - docker tag registry.gitlab.com/$IMAGE:$CI_COMMIT_SHA docker.io/$IMAGE:latest
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - docker push docker.io/$IMAGE:latest
+  - docker push $RELEASE_IMAGE
   only:
     refs:
       - master
@@ -47,9 +49,9 @@ dockerhub:
 push_tagged_image:
   stage: push
   script:
-  - docker tag registry.gitlab.com/$IMAGE:$CI_COMMIT_SHA docker.io/$IMAGE:$CI_COMMIT_TAG
+  - docker tag $TEST_IMAGE $RELEASE_TAG_IMAGE
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - docker push docker.io/$IMAGE:$CI_COMMIT_TAG
+  - docker push $RELEASE_TAG_IMAGE
   only:
     - tags
 
