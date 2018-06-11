@@ -21,3 +21,12 @@ async def get_group(request):
             'city': d_group.city,
             'creator': d_group.creator,
         })
+
+async def post_group(request):
+    async with request.app['engine'].connect() as conn:
+        data = await request.post()
+        result = await conn.execute(group.insert().values(**data))
+        return web.json_response({
+            'status': "ok",
+            'key': result.inserted_primary_key[0]
+        })
